@@ -4,13 +4,13 @@
 	import FormInput from '$lib/components/FormInput.svelte';
 	import Button from '$lib/components/Button.svelte';
 
-	let username = $state('');
+	let email = $state('');
 	let password = $state('');
 
 	async function handleSubmit(e: Event) {
 		e.preventDefault();
 		try {
-			await authStore.login(username, password);
+			await authStore.login(email, password);
 			goto('/dashboard');
 		} catch {
 			/* error is set in authStore */
@@ -28,10 +28,11 @@
 
 	<form class="form" onsubmit={handleSubmit}>
 		<FormInput
-			label="Username"
-			name="username"
-			bind:value={username}
-			placeholder="your_username"
+			label="Email"
+			name="email"
+			type="email"
+			bind:value={email}
+			placeholder="you@example.com"
 			required
 		/>
 
@@ -48,7 +49,7 @@
 			<p class="error">{authStore.error}</p>
 		{/if}
 
-		<Button type="submit" disabled={authStore.loading || !username || !password}>
+		<Button type="submit" disabled={authStore.loading || !email || !password}>
 			{#if authStore.loading}Signing in...{:else}Sign In{/if}
 		</Button>
 	</form>

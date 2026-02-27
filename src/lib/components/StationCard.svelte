@@ -47,7 +47,9 @@
 				{#if station.bpm}
 					<span class="stat">{station.bpm} BPM</span>
 				{/if}
-				<span class="stat">{station.listeners_count} listeners</span>
+				{#if station.listeners_count != null}
+					<span class="stat">{station.listeners_count} listeners</span>
+				{/if}
 			</div>
 
 			{#if station.is_online}

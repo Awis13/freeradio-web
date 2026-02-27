@@ -4,30 +4,43 @@
 	let { tenant }: { tenant: Tenant } = $props();
 
 	const statusColor: Record<string, string> = {
-		ready: 'var(--accent-color)',
+		active: 'var(--accent-color)',
 		provisioning: '#ffb43c',
 		pending: 'var(--color-text-dim)',
-		error: '#ff4444'
+		error: '#ff4444',
+		deleted: '#666'
 	};
+
+	const statusLabel: Record<string, string> = {
+		active: 'ACTIVE',
+		provisioning: 'PROVISIONING',
+		pending: 'PENDING',
+		error: 'ERROR',
+		deleted: 'DELETED'
+	};
+
+	function dashboardUrl(subdomain: string): string {
+		return `https://${subdomain}.freeradio.app`;
+	}
 </script>
 
 <div class="row">
 	<div class="info">
-		<h3 class="name">{tenant.station_name}</h3>
-		<span class="slug">/{tenant.station_slug}</span>
+		<h3 class="name">{tenant.name}</h3>
+		<span class="slug">{tenant.subdomain}.freeradio.app</span>
 	</div>
 
 	<div class="status">
-		<span class="dot" style:background={statusColor[tenant.status]}></span>
-		<span class="status-text">{tenant.status.toUpperCase()}</span>
+		<span class="dot" style:background={statusColor[tenant.status] ?? 'var(--color-text-dim)'}></span>
+		<span class="status-text">{statusLabel[tenant.status] ?? tenant.status.toUpperCase()}</span>
 	</div>
 
 	<div class="actions">
-		{#if tenant.status === 'ready' && tenant.dashboard_url}
-			<a href={tenant.dashboard_url} target="_blank" rel="noopener" class="manage-btn">
+		{#if tenant.status === 'active'}
+			<a href={dashboardUrl(tenant.subdomain)} target="_blank" rel="noopener" class="manage-btn">
 				Manage
 			</a>
-		{:else if tenant.status === 'provisioning' || tenant.status === 'pending'}
+		{:else if tenant.status === 'provisioning'}
 			<span class="wait">Setting up...</span>
 		{:else if tenant.status === 'error'}
 			<span class="err">Failed</span>

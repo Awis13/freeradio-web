@@ -9,18 +9,16 @@
 	import ProvisioningSpinner from '$lib/components/ProvisioningSpinner.svelte';
 
 	let name = $state('');
-	let slug = $state('');
-	let slugManual = $state(false);
-	let genre = $state('');
-	let description = $state('');
+	let subdomain = $state('');
+	let subdomainManual = $state(false);
 	let error = $state('');
 	let submitting = $state(false);
 	let tenant = $state<Tenant | null>(null);
 	let pollTimer: ReturnType<typeof setInterval> | null = null;
 
 	$effect(() => {
-		if (!slugManual) {
-			slug = name
+		if (!subdomainManual) {
+			subdomain = name
 				.toLowerCase()
 				.replace(/[^a-z0-9]+/g, '-')
 				.replace(/^-|-$/g, '');
@@ -36,17 +34,24 @@
 		};
 	});
 
+	function mapStatus(cpStatus: string): 'pending' | 'provisioning' | 'ready' | 'error' {
+		if (cpStatus === 'active') return 'ready';
+		if (cpStatus === 'provisioning') return 'provisioning';
+		if (cpStatus === 'error') return 'error';
+		return 'pending';
+	}
+
 	async function handleSubmit(e: Event) {
 		e.preventDefault();
-		if (!name.trim() || !slug.trim()) return;
+		if (!name.trim() || !subdomain.trim()) return;
 
 		submitting = true;
 		error = '';
 
 		try {
-			const res = await apiFetch<Tenant>('/api/v1/tenants', {
+			const res = await apiFetch<Tenant>('/api/v1/user/tenants', {
 				method: 'POST',
-				body: JSON.stringify({ name, slug, genre, description })
+				body: JSON.stringify({ name, subdomain })
 			});
 			tenant = res;
 			startPolling(res.id);
@@ -59,9 +64,9 @@
 	function startPolling(tenantId: string) {
 		pollTimer = setInterval(async () => {
 			try {
-				const res = await apiFetch<Tenant>(`/api/v1/tenants/${tenantId}`);
+				const res = await apiFetch<Tenant>(`/api/v1/user/tenants/${tenantId}`);
 				tenant = res;
-				if (res.status === 'ready' || res.status === 'error') {
+				if (res.status === 'active' || res.status === 'error') {
 					if (pollTimer) clearInterval(pollTimer);
 				}
 			} catch {
@@ -80,14 +85,14 @@
 
 	{#if tenant}
 		<div class="provisioning">
-			<h1 class="title">{tenant.station_name}</h1>
+			<h1 class="title">{tenant.name}</h1>
 			<ProvisioningSpinner
-				status={tenant.status}
+				status={mapStatus(tenant.status)}
 				message={tenant.status === 'provisioning' ? 'Setting up your station...' : tenant.status === 'error' ? 'Something went wrong. Please try again.' : ''}
 			/>
-			{#if tenant.status === 'ready' && tenant.dashboard_url}
+			{#if tenant.status === 'active'}
 				<div class="ready-actions">
-					<Button href={tenant.dashboard_url}>Open Dashboard</Button>
+					<Button href={`https://${tenant.subdomain}.freeradio.app`}>Open Dashboard</Button>
 					<Button href="/dashboard" variant="secondary">Back to Stations</Button>
 				</div>
 			{/if}
@@ -109,36 +114,19 @@
 				/>
 
 			<FormInput
-				label="Slug (URL)"
-				name="slug"
-				bind:value={slug}
+				label="Subdomain"
+				name="subdomain"
+				bind:value={subdomain}
 				placeholder="my-techno-station"
 				required
 			/>
-
-			<FormInput
-				label="Genre"
-				name="genre"
-				bind:value={genre}
-				placeholder="Hard Techno"
-			/>
-
-			<div class="field">
-				<label for="description" class="field-label">Description</label>
-				<textarea
-					id="description"
-					bind:value={description}
-					placeholder="What's your station about?"
-					rows="3"
-					class="textarea"
-				></textarea>
-			</div>
+			<p class="subdomain-hint">{subdomain ? `${subdomain}.freeradio.app` : 'your-station.freeradio.app'}</p>
 
 			{#if error}
 				<p class="error">{error}</p>
 			{/if}
 
-			<Button type="submit" disabled={submitting || !name.trim() || !slug.trim()}>
+			<Button type="submit" disabled={submitting || !name.trim() || !subdomain.trim()}>
 				{#if submitting}Creating...{:else}Create Station{/if}
 			</Button>
 		</form>
@@ -182,41 +170,10 @@
 		gap: 1.25rem;
 	}
 
-	.field {
-		display: flex;
-		flex-direction: column;
-		gap: 0.375rem;
-	}
-
-	.field-label {
+	.subdomain-hint {
 		font-size: 0.75rem;
-		font-weight: 500;
-		letter-spacing: 0.05em;
-		text-transform: uppercase;
-		color: var(--color-text-muted);
-	}
-
-	.textarea {
-		width: 100%;
-		padding: 0.625rem 0.75rem;
-		font-family: var(--font-mono);
-		font-size: 0.875rem;
-		color: var(--color-text);
-		background: var(--color-bg);
-		border: 1px solid var(--color-border);
-		border-radius: 0.25rem;
-		outline: none;
-		resize: vertical;
-		transition: border-color 150ms;
-	}
-
-	.textarea::placeholder {
 		color: var(--color-text-dim);
-	}
-
-	.textarea:focus {
-		border-color: var(--accent-color);
-		box-shadow: 0 0 0 1px rgba(var(--accent-rgb), 0.2);
+		margin-top: -0.75rem;
 	}
 
 	.error {

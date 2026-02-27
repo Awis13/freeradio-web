@@ -74,10 +74,12 @@
 						<span class="stat-label">BPM</span>
 					</div>
 				{/if}
-				<div class="stat">
-					<span class="stat-val">{station.listeners_count}</span>
-					<span class="stat-label">Listeners</span>
-				</div>
+				{#if station.listeners_count != null}
+					<div class="stat">
+						<span class="stat-val">{station.listeners_count}</span>
+						<span class="stat-label">Listeners</span>
+					</div>
+				{/if}
 			</div>
 
 			{#if station.is_online}

@@ -3,7 +3,7 @@
 	import { goto } from '$app/navigation';
 	import { authStore } from '$lib/stores/auth.svelte';
 	import { mockTenants } from '$lib/data/mock-stations';
-	import type { Tenant } from '$lib/types';
+	import type { Tenant, TenantListResponse } from '$lib/types';
 	import { apiFetch } from '$lib/api/client';
 	import StationRow from '$lib/components/StationRow.svelte';
 	import Button from '$lib/components/Button.svelte';
@@ -21,7 +21,8 @@
 
 	async function fetchTenants() {
 		try {
-			tenants = await apiFetch<Tenant[]>('/api/v1/tenants');
+			const res = await apiFetch<TenantListResponse>('/api/v1/user/tenants');
+			tenants = res.items;
 		} catch {
 			tenants = mockTenants;
 		}
