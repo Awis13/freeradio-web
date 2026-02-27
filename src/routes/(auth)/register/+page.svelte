@@ -7,9 +7,15 @@
 	let email = $state('');
 	let displayName = $state('');
 	let password = $state('');
+	let passwordError = $state('');
 
 	async function handleSubmit(e: Event) {
 		e.preventDefault();
+		passwordError = '';
+		if (password.length < 12) {
+			passwordError = 'Password must be at least 12 characters';
+			return;
+		}
 		try {
 			await authStore.register(email, displayName, password);
 			goto('/dashboard');
@@ -53,6 +59,10 @@
 			placeholder="••••••••"
 			required
 		/>
+
+		{#if passwordError}
+			<p class="error">{passwordError}</p>
+		{/if}
 
 		{#if authStore.error}
 			<p class="error">{authStore.error}</p>

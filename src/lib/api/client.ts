@@ -18,8 +18,12 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
 	});
 
 	if (!res.ok) {
-		const body = await res.text().catch(() => '');
-		throw new Error(body || `API ${res.status}: ${res.statusText}`);
+		const contentType = res.headers.get('content-type') ?? '';
+		if (contentType.includes('application/json')) {
+			const json = await res.json().catch(() => ({}));
+			throw new Error(json.error ?? `Request failed (${res.status})`);
+		}
+		throw new Error(`Request failed (${res.status})`);
 	}
 
 	return res.json() as Promise<T>;
