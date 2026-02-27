@@ -41,9 +41,21 @@
 		return 'pending';
 	}
 
+	const SUBDOMAIN_RE = /^[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$/;
+	const RESERVED_SUBDOMAINS = ['www', 'api', 'admin', 'app', 'mail', 'dashboard', 'ftp', 'status'];
+
 	async function handleSubmit(e: Event) {
 		e.preventDefault();
 		if (!name.trim() || !subdomain.trim()) return;
+
+		if (!SUBDOMAIN_RE.test(subdomain)) {
+			error = 'Subdomain must be 2–63 characters, lowercase letters, numbers and hyphens only, and must start and end with a letter or number.';
+			return;
+		}
+		if (RESERVED_SUBDOMAINS.includes(subdomain)) {
+			error = 'This subdomain is reserved. Please choose a different one.';
+			return;
+		}
 
 		submitting = true;
 		error = '';
