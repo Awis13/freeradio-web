@@ -4,18 +4,22 @@ export interface Station {
 	slug: string;
 	genre: string;
 	description: string;
-	artwork_url?: string;
+	artwork_url: string;
 	stream_url: string;
-	listeners_count: number;
+	owner_id?: string;
+	tenant_id?: string;
+	is_public: boolean;
 	is_online: boolean;
+	listeners_count?: number;
 	bpm?: number;
-	owner_id: string;
+	created_at: string;
+	updated_at: string;
 }
 
 export interface User {
 	id: string;
-	username: string;
 	email: string;
+	display_name: string;
 }
 
 export interface AuthResponse {
@@ -25,11 +29,21 @@ export interface AuthResponse {
 
 export interface Tenant {
 	id: string;
-	station_id: string;
-	station_name: string;
-	station_slug: string;
-	status: 'pending' | 'provisioning' | 'ready' | 'error';
-	dashboard_url?: string;
+	name: string;
+	subdomain: string;
+	status: string;
+	owner_id?: string;
+	health_status: string;
+	created_at: string;
+	updated_at: string;
+}
+
+export interface TenantListResponse {
+	items: Tenant[];
+	total: number;
+	limit: number;
+	offset: number;
+	has_more: boolean;
 }
 
 export type ThemeId = 'phosphor' | 'amber' | 'neon' | 'vapor' | 'ice' | 'fire';

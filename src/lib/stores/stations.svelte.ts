@@ -13,7 +13,7 @@ class StationsState {
 	}
 
 	get genres(): string[] {
-		return [...new Set(this.all.map((s) => s.genre))].sort();
+		return [...new Set(this.all.map((s) => s.genre).filter(Boolean))].sort();
 	}
 
 	get onlineCount(): number {
@@ -21,7 +21,7 @@ class StationsState {
 	}
 
 	get totalListeners(): number {
-		return this.all.reduce((sum, s) => sum + s.listeners_count, 0);
+		return this.all.reduce((sum, s) => sum + (s.listeners_count ?? 0), 0);
 	}
 
 	setGenre(genre: string | null) {

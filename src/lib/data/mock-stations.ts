@@ -1,4 +1,4 @@
-import type { Station } from '$lib/types';
+import type { Station, Tenant } from '$lib/types';
 
 export const mockStations: Station[] = [
 	{
@@ -7,11 +7,15 @@ export const mockStations: Station[] = [
 		slug: 'hard-signal',
 		genre: 'Hard Techno',
 		description: '140+ BPM non-stop industrial hard techno. No mercy, no compromise.',
+		artwork_url: '',
 		stream_url: 'http://localhost:8000/live',
-		listeners_count: 47,
+		is_public: true,
 		is_online: true,
+		listeners_count: 47,
 		bpm: 145,
-		owner_id: 'u1'
+		owner_id: 'u1',
+		created_at: '2026-02-27T00:00:00Z',
+		updated_at: '2026-02-27T00:00:00Z'
 	},
 	{
 		id: '2',
@@ -19,11 +23,15 @@ export const mockStations: Station[] = [
 		slug: 'acid-bunker',
 		genre: 'Acid Techno',
 		description: 'Pure 303 squelch from the underground. Acid all day, every day.',
+		artwork_url: '',
 		stream_url: 'http://localhost:8001/live',
-		listeners_count: 23,
+		is_public: true,
 		is_online: true,
+		listeners_count: 23,
 		bpm: 138,
-		owner_id: 'u2'
+		owner_id: 'u2',
+		created_at: '2026-02-27T00:00:00Z',
+		updated_at: '2026-02-27T00:00:00Z'
 	},
 	{
 		id: '3',
@@ -31,11 +39,15 @@ export const mockStations: Station[] = [
 		slug: 'iron-lung',
 		genre: 'Industrial Techno',
 		description: 'Machine rhythms and metallic textures. The sound of the factory floor.',
+		artwork_url: '',
 		stream_url: 'http://localhost:8002/live',
-		listeners_count: 31,
+		is_public: true,
 		is_online: true,
+		listeners_count: 31,
 		bpm: 142,
-		owner_id: 'u3'
+		owner_id: 'u3',
+		created_at: '2026-02-27T00:00:00Z',
+		updated_at: '2026-02-27T00:00:00Z'
 	},
 	{
 		id: '4',
@@ -43,11 +55,15 @@ export const mockStations: Station[] = [
 		slug: 'void-protocol',
 		genre: 'Dark Techno',
 		description: 'Abyssal frequencies and haunting atmospheres from the darkest corners.',
+		artwork_url: '',
 		stream_url: 'http://localhost:8003/live',
-		listeners_count: 18,
+		is_public: true,
 		is_online: true,
+		listeners_count: 18,
 		bpm: 136,
-		owner_id: 'u4'
+		owner_id: 'u4',
+		created_at: '2026-02-27T00:00:00Z',
+		updated_at: '2026-02-27T00:00:00Z'
 	},
 	{
 		id: '5',
@@ -55,11 +71,15 @@ export const mockStations: Station[] = [
 		slug: 'schranz-vault',
 		genre: 'Schranz',
 		description: 'Relentless loops and distorted kicks. Old school schranz for the hardened.',
+		artwork_url: '',
 		stream_url: 'http://localhost:8004/live',
-		listeners_count: 12,
+		is_public: true,
 		is_online: false,
+		listeners_count: 12,
 		bpm: 150,
-		owner_id: 'u5'
+		owner_id: 'u5',
+		created_at: '2026-02-27T00:00:00Z',
+		updated_at: '2026-02-27T00:00:00Z'
 	},
 	{
 		id: '6',
@@ -67,11 +87,15 @@ export const mockStations: Station[] = [
 		slug: 'trance-horizon',
 		genre: 'Hard Trance',
 		description: 'Euphoric leads meet pounding basslines. Peak-time energy around the clock.',
+		artwork_url: '',
 		stream_url: 'http://localhost:8005/live',
-		listeners_count: 56,
+		is_public: true,
 		is_online: true,
+		listeners_count: 56,
 		bpm: 148,
-		owner_id: 'u6'
+		owner_id: 'u6',
+		created_at: '2026-02-27T00:00:00Z',
+		updated_at: '2026-02-27T00:00:00Z'
 	},
 	{
 		id: '7',
@@ -79,11 +103,15 @@ export const mockStations: Station[] = [
 		slug: 'gabber-kitchen',
 		genre: 'Hardcore',
 		description: 'Distorted kicks at 160+. Hardcore will never die.',
+		artwork_url: '',
 		stream_url: 'http://localhost:8006/live',
-		listeners_count: 34,
+		is_public: true,
 		is_online: true,
+		listeners_count: 34,
 		bpm: 165,
-		owner_id: 'u7'
+		owner_id: 'u7',
+		created_at: '2026-02-27T00:00:00Z',
+		updated_at: '2026-02-27T00:00:00Z'
 	},
 	{
 		id: '8',
@@ -91,11 +119,15 @@ export const mockStations: Station[] = [
 		slug: 'hypno-loop',
 		genre: 'Hypnotic Techno',
 		description: 'Minimal, repetitive, transcendent. Let the loop take you somewhere else.',
+		artwork_url: '',
 		stream_url: 'http://localhost:8007/live',
-		listeners_count: 29,
+		is_public: true,
 		is_online: true,
+		listeners_count: 29,
 		bpm: 132,
-		owner_id: 'u8'
+		owner_id: 'u8',
+		created_at: '2026-02-27T00:00:00Z',
+		updated_at: '2026-02-27T00:00:00Z'
 	},
 	{
 		id: '9',
@@ -103,11 +135,15 @@ export const mockStations: Station[] = [
 		slug: 'noise-floor',
 		genre: 'Industrial Techno',
 		description: 'Where noise meets rhythm. Experimental industrial for the adventurous.',
+		artwork_url: '',
 		stream_url: 'http://localhost:8008/live',
-		listeners_count: 8,
+		is_public: true,
 		is_online: false,
+		listeners_count: 8,
 		bpm: 140,
-		owner_id: 'u9'
+		owner_id: 'u9',
+		created_at: '2026-02-27T00:00:00Z',
+		updated_at: '2026-02-27T00:00:00Z'
 	},
 	{
 		id: '10',
@@ -115,29 +151,37 @@ export const mockStations: Station[] = [
 		slug: 'warehouse-99',
 		genre: 'Hard Techno',
 		description: 'Raw, unfiltered hard techno straight from the warehouse. No polish, all power.',
+		artwork_url: '',
 		stream_url: 'http://localhost:8009/live',
-		listeners_count: 41,
+		is_public: true,
 		is_online: true,
+		listeners_count: 41,
 		bpm: 144,
-		owner_id: 'u10'
+		owner_id: 'u10',
+		created_at: '2026-02-27T00:00:00Z',
+		updated_at: '2026-02-27T00:00:00Z'
 	}
 ];
 
-export const mockTenants = [
+export const mockTenants: Tenant[] = [
 	{
 		id: 't1',
-		station_id: '1',
-		station_name: 'HARD SIGNAL',
-		station_slug: 'hard-signal',
-		status: 'ready' as const,
-		dashboard_url: 'http://hard-signal.studio23.live'
+		name: 'HARD SIGNAL',
+		subdomain: 'hard-signal',
+		status: 'active',
+		health_status: 'healthy',
+		owner_id: 'u1',
+		created_at: '2026-02-27T00:00:00Z',
+		updated_at: '2026-02-27T00:00:00Z'
 	},
 	{
 		id: 't2',
-		station_id: '2',
-		station_name: 'ACID BUNKER',
-		station_slug: 'acid-bunker',
-		status: 'provisioning' as const,
-		dashboard_url: undefined
+		name: 'ACID BUNKER',
+		subdomain: 'acid-bunker',
+		status: 'provisioning',
+		health_status: 'unknown',
+		owner_id: 'u2',
+		created_at: '2026-02-27T00:00:00Z',
+		updated_at: '2026-02-27T00:00:00Z'
 	}
 ];

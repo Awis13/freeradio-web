@@ -27,13 +27,13 @@ class AuthState {
 		}
 	}
 
-	async login(username: string, password: string) {
+	async login(email: string, password: string) {
 		this.loading = true;
 		this.error = null;
 		try {
 			const res = await apiFetch<{ token: string; user: User }>('/api/v1/auth/login', {
 				method: 'POST',
-				body: JSON.stringify({ username, password })
+				body: JSON.stringify({ email, password })
 			});
 			this.token = res.token;
 			this.user = res.user;
@@ -47,13 +47,13 @@ class AuthState {
 		}
 	}
 
-	async register(username: string, email: string, password: string) {
+	async register(email: string, displayName: string, password: string) {
 		this.loading = true;
 		this.error = null;
 		try {
 			const res = await apiFetch<{ token: string; user: User }>('/api/v1/auth/register', {
 				method: 'POST',
-				body: JSON.stringify({ username, email, password })
+				body: JSON.stringify({ email, password, display_name: displayName })
 			});
 			this.token = res.token;
 			this.user = res.user;
