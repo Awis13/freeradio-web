@@ -9,7 +9,7 @@
 
 	let tenants = $state<Tenant[]>([]);
 	let loading = $state(true);
-	let error = $state('');
+	let error = $state<string | null>(null);
 
 	onMount(() => {
 		if (!authStore.isAuthenticated) {
@@ -20,9 +20,10 @@
 	});
 
 	async function fetchTenants() {
+		error = null;
 		try {
 			const res = await apiFetch<TenantListResponse>('/api/v1/user/tenants');
-			tenants = res.items;
+			tenants = res.items ?? [];
 		} catch (e) {
 			error = e instanceof Error ? e.message : 'Failed to load stations';
 		}
