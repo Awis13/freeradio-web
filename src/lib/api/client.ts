@@ -1,4 +1,8 @@
-const API_BASE = import.meta.env.VITE_CP_API_URL ?? 'http://localhost:8080';
+import { env } from '$env/dynamic/public';
+
+function getApiBase(): string {
+	return env.PUBLIC_CP_API_URL ?? 'http://localhost:8085';
+}
 
 export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
 	const headers: Record<string, string> = {
@@ -12,7 +16,7 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
 		}
 	}
 
-	const res = await fetch(`${API_BASE}${path}`, {
+	const res = await fetch(`${getApiBase()}${path}`, {
 		...init,
 		headers: { ...headers, ...(init?.headers as Record<string, string>) }
 	});

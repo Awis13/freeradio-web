@@ -2,13 +2,12 @@
 	import '../app.css';
 	import { onMount } from 'svelte';
 	import { themeStore } from '$lib/stores/theme.svelte';
-	import { authStore } from '$lib/stores/auth.svelte';
+	import '$lib/stores/auth.svelte';
 
 	let { children } = $props();
 
 	onMount(() => {
 		themeStore.init();
-		authStore.init();
 	});
 </script>
 

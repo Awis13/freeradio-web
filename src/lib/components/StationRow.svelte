@@ -43,7 +43,7 @@
 		{:else if tenant.status === 'provisioning'}
 			<span class="wait">Setting up...</span>
 		{:else if tenant.status === 'error'}
-			<span class="err">Failed</span>
+			<span class="err" title={tenant.error_message ?? ''}>Failed</span>
 		{/if}
 	</div>
 </div>

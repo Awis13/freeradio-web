@@ -67,10 +67,14 @@
 			<h1 class="name">{station.name}</h1>
 			<p class="desc">{station.description}</p>
 
+			{#if station.now_playing}
+				<p class="now-playing">Now playing: {station.now_playing}</p>
+			{/if}
+
 			<div class="stats">
 				{#if station.bpm}
 					<div class="stat">
-						<span class="stat-val">{station.bpm}</span>
+						<span class="stat-val">{Math.round(station.bpm)}</span>
 						<span class="stat-label">BPM</span>
 					</div>
 				{/if}
@@ -170,6 +174,15 @@
 		color: var(--color-text);
 		margin-bottom: 0.75rem;
 		line-height: 1.1;
+	}
+
+	.now-playing {
+		font-size: 0.8125rem;
+		color: var(--accent-color);
+		margin-bottom: 1rem;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 
 	.desc {

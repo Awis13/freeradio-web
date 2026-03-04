@@ -42,10 +42,14 @@
 
 		<p class="desc">{station.description}</p>
 
+		{#if station.now_playing}
+			<p class="now-playing">{station.now_playing}</p>
+		{/if}
+
 		<div class="footer">
 			<div class="stats">
 				{#if station.bpm}
-					<span class="stat">{station.bpm} BPM</span>
+					<span class="stat">{Math.round(station.bpm)} BPM</span>
 				{/if}
 				{#if station.listeners_count != null}
 					<span class="stat">{station.listeners_count} listeners</span>
@@ -157,6 +161,15 @@
 		-webkit-line-clamp: 2;
 		-webkit-box-orient: vertical;
 		overflow: hidden;
+	}
+
+	.now-playing {
+		font-size: 0.75rem;
+		color: var(--accent-color);
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		margin: 0;
 	}
 
 	.footer {

@@ -46,6 +46,11 @@
 		<div class="spinner"></div>
 		<span>Loading stations...</span>
 	</div>
+{:else if stationsStore.error}
+	<div class="empty">
+		<p>{stationsStore.error}</p>
+		<button class="reset" onclick={() => stationsStore.fetch()}>Retry</button>
+	</div>
 {:else if stationsStore.filtered.length === 0}
 	<div class="empty">
 		<p>No stations found</p>
