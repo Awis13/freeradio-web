@@ -48,65 +48,55 @@
 	});
 </script>
 
-<div class="bar" class:active={!!playerStore.station}>
+{#if playerStore.station}
+<div class="bar active">
 	<audio bind:this={audioEl} crossorigin="anonymous"></audio>
 
 	<div class="inner">
 		<div class="info">
-			{#if playerStore.station}
-				{#if playerStore.isPlaying}
-					<PlayingIndicator />
-				{/if}
-				<div class="meta">
-					<span class="name">{playerStore.station.name}</span>
-					<span class="genre">{playerStore.station.genre}</span>
-				</div>
-			{:else}
-				<span class="empty">No station selected</span>
+			{#if playerStore.isPlaying}
+				<PlayingIndicator />
 			{/if}
+			<div class="meta">
+				<span class="name">{playerStore.station.name}</span>
+				<span class="genre">{playerStore.station.genre}</span>
+			</div>
 		</div>
 
 		<div class="controls">
-			{#if playerStore.station}
-				<button class="play-btn" onclick={() => playerStore.toggle()}>
-					{#if playerStore.isPlaying}
-						<svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
-							<rect x="6" y="4" width="4" height="16" rx="1" />
-							<rect x="14" y="4" width="4" height="16" rx="1" />
-						</svg>
-					{:else}
-						<svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
-							<polygon points="5,3 19,12 5,21" />
-						</svg>
-					{/if}
-				</button>
-
-				<button class="stop-btn" onclick={() => playerStore.stop()} aria-label="Stop">
-					<svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
-						<rect x="4" y="4" width="16" height="16" rx="2" />
+			<button class="play-btn" onclick={() => playerStore.toggle()}>
+				{#if playerStore.isPlaying}
+					<svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+						<rect x="6" y="4" width="4" height="16" rx="1" />
+						<rect x="14" y="4" width="4" height="16" rx="1" />
 					</svg>
-				</button>
+				{:else}
+					<svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+						<polygon points="5,3 19,12 5,21" />
+					</svg>
+				{/if}
+			</button>
 
-				<VolumeSlider
-					value={playerStore.volume}
-					onchange={(v) => playerStore.setVolume(v)}
-				/>
-			{/if}
+			<button class="stop-btn" onclick={() => playerStore.stop()} aria-label="Stop">
+				<svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
+					<rect x="4" y="4" width="16" height="16" rx="2" />
+				</svg>
+			</button>
+
+			<VolumeSlider
+				value={playerStore.volume}
+				onchange={(v) => playerStore.setVolume(v)}
+			/>
 		</div>
 	</div>
 </div>
+{/if}
 
 <style>
 	.bar {
 		border-top: 1px solid var(--color-border);
 		background: var(--color-surface);
 		padding: 0 1.5rem;
-		opacity: 0.5;
-		transition: opacity 200ms ease;
-	}
-
-	.bar.active {
-		opacity: 1;
 	}
 
 	.inner {
@@ -150,12 +140,7 @@
 		white-space: nowrap;
 	}
 
-	.empty {
-		font-size: 0.8125rem;
-		color: var(--color-text-dim);
-	}
-
-	.controls {
+.controls {
 		display: flex;
 		align-items: center;
 		gap: 0.75rem;
