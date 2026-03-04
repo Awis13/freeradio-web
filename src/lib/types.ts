@@ -11,6 +11,7 @@ export interface Station {
 	is_public: boolean;
 	is_online: boolean;
 	listeners_count?: number;
+	now_playing?: string;
 	bpm?: number;
 	created_at: string;
 	updated_at: string;
@@ -33,6 +34,7 @@ export interface Tenant {
 	subdomain: string;
 	status: string;
 	owner_id?: string;
+	error_message?: string;
 	health_status: string;
 	created_at: string;
 	updated_at: string;

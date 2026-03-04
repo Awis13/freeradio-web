@@ -100,7 +100,7 @@
 			<h1 class="title">{tenant.name}</h1>
 			<ProvisioningSpinner
 				status={mapStatus(tenant.status)}
-				message={tenant.status === 'provisioning' ? 'Setting up your station...' : tenant.status === 'error' ? 'Something went wrong. Please try again.' : ''}
+				message={tenant.status === 'provisioning' ? 'Setting up your station...' : tenant.status === 'error' ? (tenant.error_message ?? 'Something went wrong. Please try again.') : ''}
 			/>
 			{#if tenant.status === 'active'}
 				<div class="ready-actions">

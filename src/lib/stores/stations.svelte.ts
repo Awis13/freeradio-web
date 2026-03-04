@@ -1,11 +1,11 @@
 import type { Station } from '$lib/types';
 import { apiFetch } from '$lib/api/client';
-import { mockStations } from '$lib/data/mock-stations';
 
 class StationsState {
 	all = $state<Station[]>([]);
 	selectedGenre = $state<string | null>(null);
 	loading = $state(false);
+	error = $state<string | null>(null);
 
 	get filtered(): Station[] {
 		if (!this.selectedGenre) return this.all;
@@ -30,11 +30,13 @@ class StationsState {
 
 	async fetch() {
 		this.loading = true;
+		this.error = null;
 		try {
 			const data = await apiFetch<Station[]>('/api/v1/stations');
 			this.all = data;
-		} catch {
-			this.all = mockStations;
+		} catch (e) {
+			this.error = e instanceof Error ? e.message : 'Failed to load stations';
+			this.all = [];
 		}
 		this.loading = false;
 	}
@@ -43,7 +45,7 @@ class StationsState {
 		try {
 			return await apiFetch<Station>(`/api/v1/stations/${encodeURIComponent(slug)}`);
 		} catch {
-			return mockStations.find((s) => s.slug === slug) ?? null;
+			return null;
 		}
 	}
 }
