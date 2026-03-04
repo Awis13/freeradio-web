@@ -140,7 +140,7 @@
 		white-space: nowrap;
 	}
 
-.controls {
+	.controls {
 		display: flex;
 		align-items: center;
 		gap: 0.75rem;
