@@ -9,6 +9,10 @@
 		playerStore.station?.id === station.id && playerStore.isPlaying
 	);
 
+	const displayName = $derived(
+		/^\d+$/.test(station.name) ? `Station #${station.name}` : station.name
+	);
+
 	function handlePlay(e: Event) {
 		e.preventDefault();
 		e.stopPropagation();
@@ -23,7 +27,7 @@
 <a href="/stations/{station.slug}" class="card">
 	<div class="artwork">
 		<div class="artwork-inner">
-			{station.name.charAt(0)}
+			{displayName.charAt(0)}
 		</div>
 		{#if station.is_online}
 			<span class="live-badge">LIVE</span>
@@ -32,7 +36,7 @@
 
 	<div class="body">
 		<div class="header">
-			<h3 class="name">{station.name}</h3>
+			<h3 class="name">{displayName}</h3>
 			{#if isCurrentlyPlaying}
 				<PlayingIndicator />
 			{/if}
