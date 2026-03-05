@@ -77,7 +77,7 @@ class AuthState {
 
 export const authStore = new AuthState();
 
-// Инициализация при импорте модуля — до onMount любого компонента.
-// Это фиксит race condition где dashboard проверяет isAuthenticated
-// до того как root layout вызовет init() в своём onMount.
+// Initialize on module import — before any component's onMount.
+// Fixes race condition where dashboard checks isAuthenticated
+// before root layout calls init() in its onMount.
 authStore.init();
