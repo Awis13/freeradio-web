@@ -86,30 +86,53 @@
 <section class="section">
 	<div class="section-inner">
 		<h2 class="section-title">Pricing</h2>
-		<p class="section-desc">Start free. Pay only when you scale.</p>
+		<p class="section-desc">Start free. Scale when you're ready.</p>
 
-		<div class="pricing-grid pricing-grid-two">
+		<div class="pricing-grid">
 			<PricingCard
 				name="Free"
-				price="$0/mo"
+				price="$0"
+				priceNote="24h streaming, then 1–2 day cooldown"
 				features={[
-					'1 radio station',
+					'1 platform (YouTube OR Twitch OR Kick)',
 					'720p video quality',
 					'STUDIO 23 watermark',
-					'Basic analytics',
-					'Community support'
+					'Basic analytics'
+				]}
+			/>
+			<PricingCard
+				name="Starter"
+				price="$9/mo"
+				features={[
+					'24/7 non-stop streaming',
+					'1 platform',
+					'720p video quality',
+					'No watermark',
+					'Email support'
 				]}
 			/>
 			<PricingCard
 				name="Pro"
-				price="$0.10/hr"
-				priceNote="Capped at $30/mo — never pay more"
+				price="$29/mo"
 				highlighted
 				features={[
-					'Unlimited stations',
-					'1080p+ video quality',
-					'No watermark',
-					'Full analytics dashboard',
+					'24/7 non-stop streaming',
+					'3 platforms simultaneously',
+					'1080p video quality',
+					'DSP & audio processing',
+					'Custom overlays',
+					'Full analytics'
+				]}
+			/>
+			<PricingCard
+				name="Studio"
+				price="$59/mo"
+				features={[
+					'Up to 3 radio stations',
+					'3 platforms per station',
+					'4K video quality',
+					'API access',
+					'Custom domain',
 					'Priority support'
 				]}
 			/>
@@ -262,8 +285,8 @@
 		align-items: start;
 	}
 
-	.pricing-grid-two {
-		max-width: 40rem;
+	.pricing-grid {
+		max-width: 64rem;
 		margin-left: auto;
 		margin-right: auto;
 	}
