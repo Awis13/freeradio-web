@@ -17,6 +17,7 @@
 			<a href="/explore" class="link">Explore</a>
 			{#if authStore.isAuthenticated}
 				<a href="/dashboard" class="link">Dashboard</a>
+				<a href="/dashboard/billing" class="link">Billing</a>
 				<a href="/profile" class="link">Profile</a>
 				<button class="link link-btn" onclick={() => { authStore.logout(); window.location.href = '/'; }}>Logout</button>
 			{:else}

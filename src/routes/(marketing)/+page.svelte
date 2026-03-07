@@ -103,6 +103,7 @@
 			<PricingCard
 				name="Starter"
 				price="$9/mo"
+				href="/register?tier=starter"
 				features={[
 					'24/7 non-stop streaming',
 					'1 platform',
@@ -115,6 +116,7 @@
 				name="Pro"
 				price="$29/mo"
 				highlighted
+				href="/register?tier=pro"
 				features={[
 					'24/7 non-stop streaming',
 					'3 platforms simultaneously',
@@ -127,6 +129,7 @@
 			<PricingCard
 				name="Studio"
 				price="$59/mo"
+				href="/register?tier=studio"
 				features={[
 					'Up to 3 radio stations',
 					'3 platforms per station',
