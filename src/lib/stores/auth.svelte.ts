@@ -1,6 +1,13 @@
 import type { User } from '$lib/types';
 import { apiFetch } from '$lib/api/client';
 
+interface AuthTokenResponse {
+	token: string;
+	refresh_token: string;
+	expires_in: number;
+	user: User;
+}
+
 class AuthState {
 	user = $state<User | null>(null);
 	token = $state<string | null>(null);
@@ -27,18 +34,23 @@ class AuthState {
 		}
 	}
 
+	private saveTokens(res: AuthTokenResponse) {
+		this.token = res.token;
+		this.user = res.user;
+		localStorage.setItem('freeradio-token', res.token);
+		localStorage.setItem('freeradio-refresh-token', res.refresh_token);
+		localStorage.setItem('freeradio-user', JSON.stringify(res.user));
+	}
+
 	async login(email: string, password: string) {
 		this.loading = true;
 		this.error = null;
 		try {
-			const res = await apiFetch<{ token: string; user: User }>('/api/v1/auth/login', {
+			const res = await apiFetch<AuthTokenResponse>('/api/v1/auth/login', {
 				method: 'POST',
 				body: JSON.stringify({ email, password })
 			});
-			this.token = res.token;
-			this.user = res.user;
-			localStorage.setItem('freeradio-token', res.token);
-			localStorage.setItem('freeradio-user', JSON.stringify(res.user));
+			this.saveTokens(res);
 		} catch (e) {
 			this.error = e instanceof Error ? e.message : 'Login failed';
 			throw e;
@@ -55,14 +67,11 @@ class AuthState {
 			if (registrationToken) {
 				payload.registration_token = registrationToken;
 			}
-			const res = await apiFetch<{ token: string; user: User }>('/api/v1/auth/register', {
+			const res = await apiFetch<AuthTokenResponse>('/api/v1/auth/register', {
 				method: 'POST',
 				body: JSON.stringify(payload)
 			});
-			this.token = res.token;
-			this.user = res.user;
-			localStorage.setItem('freeradio-token', res.token);
-			localStorage.setItem('freeradio-user', JSON.stringify(res.user));
+			this.saveTokens(res);
 		} catch (e) {
 			this.error = e instanceof Error ? e.message : 'Registration failed';
 			throw e;
@@ -71,10 +80,27 @@ class AuthState {
 		}
 	}
 
+	async changePassword(oldPassword: string, newPassword: string) {
+		const res = await apiFetch<AuthTokenResponse>('/api/v1/auth/password', {
+			method: 'POST',
+			body: JSON.stringify({ old_password: oldPassword, new_password: newPassword })
+		});
+		this.saveTokens(res);
+	}
+
 	logout() {
+		const refreshToken = localStorage.getItem('freeradio-refresh-token');
+		// Fire-and-forget server logout
+		if (this.token) {
+			apiFetch('/api/v1/auth/logout', {
+				method: 'POST',
+				body: JSON.stringify({ refresh_token: refreshToken ?? undefined })
+			}).catch(() => {});
+		}
 		this.token = null;
 		this.user = null;
 		localStorage.removeItem('freeradio-token');
+		localStorage.removeItem('freeradio-refresh-token');
 		localStorage.removeItem('freeradio-user');
 	}
 }

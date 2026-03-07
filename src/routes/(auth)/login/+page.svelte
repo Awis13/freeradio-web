@@ -1,11 +1,14 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
 	import { authStore } from '$lib/stores/auth.svelte';
 	import FormInput from '$lib/components/FormInput.svelte';
 	import Button from '$lib/components/Button.svelte';
 
 	let email = $state('');
 	let password = $state('');
+
+	const expired = $derived($page.url.searchParams.get('expired') === '1');
 
 	async function handleSubmit(e: Event) {
 		e.preventDefault();
@@ -24,6 +27,9 @@
 
 <div class="card">
 	<h1 class="title">Login</h1>
+	{#if expired}
+		<p class="expired">Your session has expired. Please sign in again.</p>
+	{/if}
 	<p class="subtitle">Sign in to manage your stations</p>
 
 	<form class="form" onsubmit={handleSubmit}>
@@ -89,6 +95,12 @@
 	.error {
 		font-size: 0.8125rem;
 		color: #ff4444;
+	}
+
+	.expired {
+		font-size: 0.8125rem;
+		color: #ff8c00;
+		margin-bottom: 0.5rem;
 	}
 
 	.alt {
