@@ -86,41 +86,31 @@
 <section class="section">
 	<div class="section-inner">
 		<h2 class="section-title">Pricing</h2>
-		<p class="section-desc">Simple plans. Scale when you need to.</p>
+		<p class="section-desc">Start free. Pay only when you scale.</p>
 
-		<div class="pricing-grid">
+		<div class="pricing-grid pricing-grid-two">
 			<PricingCard
-				name="Starter"
-				price="$9/mo"
+				name="Free"
+				price="$0/mo"
 				features={[
 					'1 radio station',
-					'Audio streaming (Icecast)',
-					'AutoDJ with crossfades',
+					'720p video quality',
+					'STUDIO 23 watermark',
 					'Basic analytics',
-					'100 concurrent listeners'
+					'Community support'
 				]}
 			/>
 			<PricingCard
 				name="Pro"
-				price="$29/mo"
+				price="$0.10/hr"
+				priceNote="Capped at $30/mo — never pay more"
 				highlighted
 				features={[
-					'3 radio stations',
-					'Audio + Video streaming',
-					'YouTube & Kick output',
-					'Smart playlists & scheduling',
-					'Unlimited listeners'
-				]}
-			/>
-			<PricingCard
-				name="Enterprise"
-				price="Contact"
-				features={[
 					'Unlimited stations',
-					'Custom deployment',
-					'Dedicated hardware',
-					'Priority support',
-					'SLA guarantee'
+					'1080p+ video quality',
+					'No watermark',
+					'Full analytics dashboard',
+					'Priority support'
 				]}
 			/>
 		</div>
@@ -131,7 +121,7 @@
 <section class="cta-section">
 	<div class="section-inner cta-inner">
 		<h2 class="cta-title">Ready to go live?</h2>
-		<p class="cta-desc">Create your station in minutes. No credit card required for the free trial.</p>
+		<p class="cta-desc">Create your station in minutes. Free tier — no credit card required.</p>
 		<Button href="/register">Create Your Station</Button>
 	</div>
 </section>
@@ -270,6 +260,12 @@
 		grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
 		gap: 1.25rem;
 		align-items: start;
+	}
+
+	.pricing-grid-two {
+		max-width: 40rem;
+		margin-left: auto;
+		margin-right: auto;
 	}
 
 	/* CTA */

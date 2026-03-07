@@ -7,7 +7,9 @@
 	let email = $state('');
 	let displayName = $state('');
 	let password = $state('');
+	let inviteCode = $state('');
 	let passwordError = $state('');
+	let showInviteField = $state(false);
 
 	async function handleSubmit(e: Event) {
 		e.preventDefault();
@@ -17,10 +19,13 @@
 			return;
 		}
 		try {
-			await authStore.register(email, displayName, password);
+			await authStore.register(email, displayName, password, inviteCode || undefined);
 			goto('/dashboard');
 		} catch {
-			/* error is set in authStore */
+			// Если ошибка связана с invite token — показываем поле
+			if (authStore.error && /invite|registration.token|token.required/i.test(authStore.error)) {
+				showInviteField = true;
+			}
 		}
 	}
 </script>
@@ -62,6 +67,21 @@
 
 		{#if passwordError}
 			<p class="error">{passwordError}</p>
+		{/if}
+
+		{#if !showInviteField}
+			<button type="button" class="invite-toggle" onclick={() => showInviteField = true}>
+				Have an invite code?
+			</button>
+		{/if}
+
+		{#if showInviteField}
+			<FormInput
+				label="Invite Code"
+				name="inviteCode"
+				bind:value={inviteCode}
+				placeholder="Enter invite code (optional)"
+			/>
 		{/if}
 
 		{#if authStore.error}
@@ -124,5 +144,20 @@
 
 	.link:hover {
 		text-decoration: underline;
+	}
+
+	.invite-toggle {
+		background: none;
+		border: none;
+		color: var(--color-text-dim);
+		font-size: 0.8125rem;
+		cursor: pointer;
+		padding: 0;
+		text-align: left;
+		transition: color 150ms ease;
+	}
+
+	.invite-toggle:hover {
+		color: var(--accent-color);
 	}
 </style>

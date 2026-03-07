@@ -47,13 +47,17 @@ class AuthState {
 		}
 	}
 
-	async register(email: string, displayName: string, password: string) {
+	async register(email: string, displayName: string, password: string, registrationToken?: string) {
 		this.loading = true;
 		this.error = null;
 		try {
+			const payload: Record<string, string> = { email, password, display_name: displayName };
+			if (registrationToken) {
+				payload.registration_token = registrationToken;
+			}
 			const res = await apiFetch<{ token: string; user: User }>('/api/v1/auth/register', {
 				method: 'POST',
-				body: JSON.stringify({ email, password, display_name: displayName })
+				body: JSON.stringify(payload)
 			});
 			this.token = res.token;
 			this.user = res.user;
