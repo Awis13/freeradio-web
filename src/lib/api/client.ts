@@ -69,8 +69,9 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
 		headers: { ...headers, ...(init?.headers as Record<string, string>) }
 	});
 
-	// On 401, try refreshing the token once
-	if (res.status === 401 && typeof window !== 'undefined') {
+	// On 401, try refreshing the token once (skip for auth endpoints — they return 401 for bad credentials)
+	const isAuthEndpoint = path.startsWith('/api/v1/auth/');
+	if (res.status === 401 && typeof window !== 'undefined' && !isAuthEndpoint) {
 		const refreshed = await tryRefresh();
 		if (refreshed) {
 			const newToken = localStorage.getItem('freeradio-token');
