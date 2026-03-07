@@ -4,13 +4,15 @@
 		price,
 		priceNote = '',
 		features,
-		highlighted = false
+		highlighted = false,
+		href = '/register'
 	}: {
 		name: string;
 		price: string;
 		priceNote?: string;
 		features: string[];
 		highlighted?: boolean;
+		href?: string;
 	} = $props();
 </script>
 
@@ -30,7 +32,7 @@
 			</li>
 		{/each}
 	</ul>
-	<a href="/register" class="cta" class:cta-highlighted={highlighted}>
+	<a {href} class="cta" class:cta-highlighted={highlighted}>
 		Get Started
 	</a>
 </div>

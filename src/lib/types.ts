@@ -48,6 +48,30 @@ export interface TenantListResponse {
 	has_more: boolean;
 }
 
+// Billing
+export interface BillingStatus {
+	tenants: TenantBilling[];
+}
+
+export interface TenantBilling {
+	tenant_id: string;
+	tenant_name: string;
+	tier: string;
+	limits: TierLimits;
+	has_stripe: boolean;
+}
+
+export interface TierLimits {
+	max_stations: number;
+	max_platforms: number;
+	max_quality: string;
+	watermark: boolean;
+	dsp: boolean;
+	custom_overlays: boolean;
+	analytics: string;
+	storage: string;
+}
+
 export type ThemeId = 'phosphor' | 'amber' | 'neon' | 'vapor' | 'ice' | 'fire';
 
 export interface ThemeConfig {
