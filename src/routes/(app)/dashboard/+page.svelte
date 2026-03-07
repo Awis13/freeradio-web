@@ -63,7 +63,7 @@
 {:else}
 	<div class="list">
 		{#each tenants as tenant (tenant.id)}
-			<StationRow {tenant} />
+			<StationRow {tenant} onupdate={fetchTenants} />
 		{/each}
 	</div>
 {/if}

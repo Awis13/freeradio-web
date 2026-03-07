@@ -8,6 +8,23 @@
 	import Button from '$lib/components/Button.svelte';
 	import ProvisioningSpinner from '$lib/components/ProvisioningSpinner.svelte';
 
+	let ssoLoading = $state(false);
+
+	async function openDashboard() {
+		if (!tenant) return;
+		ssoLoading = true;
+		try {
+			const res = await apiFetch<{ url: string }>(`/api/v1/user/tenants/${tenant.id}/sso-token`, {
+				method: 'POST'
+			});
+			window.location.href = res.url;
+		} catch {
+			// Fallback to direct link if SSO fails
+			window.open(`https://${tenant.subdomain}.freeradio.app`, '_blank');
+		}
+		ssoLoading = false;
+	}
+
 	let name = $state('');
 	let subdomain = $state('');
 	let subdomainManual = $state(false);
@@ -104,7 +121,9 @@
 			/>
 			{#if tenant.status === 'active'}
 				<div class="ready-actions">
-					<Button href={`https://${tenant.subdomain}.freeradio.app`}>Open Dashboard</Button>
+					<Button onclick={openDashboard} disabled={ssoLoading}>
+						{#if ssoLoading}Opening...{:else}Open Dashboard{/if}
+					</Button>
 					<Button href="/dashboard" variant="secondary">Back to Stations</Button>
 				</div>
 			{/if}
