@@ -86,18 +86,29 @@
 <section class="section">
 	<div class="section-inner">
 		<h2 class="section-title">Pricing</h2>
-		<p class="section-desc">Simple plans. Scale when you need to.</p>
+		<p class="section-desc">Start free. Scale when you're ready.</p>
 
 		<div class="pricing-grid">
+			<PricingCard
+				name="Free"
+				price="$0"
+				priceNote="24h streaming, then 1–2 day cooldown"
+				features={[
+					'1 platform (YouTube OR Twitch OR Kick)',
+					'720p video quality',
+					'STUDIO 23 watermark',
+					'Basic analytics'
+				]}
+			/>
 			<PricingCard
 				name="Starter"
 				price="$9/mo"
 				features={[
-					'1 radio station',
-					'Audio streaming (Icecast)',
-					'AutoDJ with crossfades',
-					'Basic analytics',
-					'100 concurrent listeners'
+					'24/7 non-stop streaming',
+					'1 platform',
+					'720p video quality',
+					'No watermark',
+					'Email support'
 				]}
 			/>
 			<PricingCard
@@ -105,22 +116,24 @@
 				price="$29/mo"
 				highlighted
 				features={[
-					'3 radio stations',
-					'Audio + Video streaming',
-					'YouTube & Kick output',
-					'Smart playlists & scheduling',
-					'Unlimited listeners'
+					'24/7 non-stop streaming',
+					'3 platforms simultaneously',
+					'1080p video quality',
+					'DSP & audio processing',
+					'Custom overlays',
+					'Full analytics'
 				]}
 			/>
 			<PricingCard
-				name="Enterprise"
-				price="Contact"
+				name="Studio"
+				price="$59/mo"
 				features={[
-					'Unlimited stations',
-					'Custom deployment',
-					'Dedicated hardware',
-					'Priority support',
-					'SLA guarantee'
+					'Up to 3 radio stations',
+					'3 platforms per station',
+					'4K video quality',
+					'API access',
+					'Custom domain',
+					'Priority support'
 				]}
 			/>
 		</div>
@@ -131,7 +144,7 @@
 <section class="cta-section">
 	<div class="section-inner cta-inner">
 		<h2 class="cta-title">Ready to go live?</h2>
-		<p class="cta-desc">Create your station in minutes. No credit card required for the free trial.</p>
+		<p class="cta-desc">Create your station in minutes. Free tier — no credit card required.</p>
 		<Button href="/register">Create Your Station</Button>
 	</div>
 </section>
@@ -270,6 +283,12 @@
 		grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
 		gap: 1.25rem;
 		align-items: start;
+	}
+
+	.pricing-grid {
+		max-width: 64rem;
+		margin-left: auto;
+		margin-right: auto;
 	}
 
 	/* CTA */

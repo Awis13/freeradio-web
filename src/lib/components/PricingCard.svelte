@@ -2,11 +2,13 @@
 	let {
 		name,
 		price,
+		priceNote = '',
 		features,
 		highlighted = false
 	}: {
 		name: string;
 		price: string;
+		priceNote?: string;
 		features: string[];
 		highlighted?: boolean;
 	} = $props();
@@ -16,6 +18,9 @@
 	<div class="header">
 		<h3 class="name">{name}</h3>
 		<div class="price">{price}</div>
+		{#if priceNote}
+			<div class="price-note">{priceNote}</div>
+		{/if}
 	</div>
 	<ul class="features">
 		{#each features as feature}
@@ -67,6 +72,13 @@
 		font-size: 2rem;
 		font-weight: 700;
 		color: var(--color-text);
+	}
+
+	.price-note {
+		font-size: 0.75rem;
+		font-weight: 600;
+		color: var(--accent-color);
+		margin-top: 0.25rem;
 	}
 
 	.features {
