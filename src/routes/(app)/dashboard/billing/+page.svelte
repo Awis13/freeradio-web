@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
-	import { page } from '$app/stores';
 	import { authStore } from '$lib/stores/auth.svelte';
 	import { apiFetch } from '$lib/api/client';
 	import Button from '$lib/components/Button.svelte';
