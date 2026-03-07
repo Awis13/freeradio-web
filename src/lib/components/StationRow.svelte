@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Tenant } from '$lib/types';
-	import { apiFetch } from '$lib/api/client';
+	import { apiFetch, getTenantDomain } from '$lib/api/client';
 
 	let {
 		tenant,
@@ -90,7 +90,7 @@
 <div class="row">
 	<div class="info">
 		<h3 class="name">{tenant.name}</h3>
-		<span class="slug">{tenant.subdomain}.freeradio.app</span>
+		<span class="slug">{tenant.subdomain}.{getTenantDomain()}</span>
 	</div>
 
 	<div class="status">

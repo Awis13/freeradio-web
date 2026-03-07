@@ -280,15 +280,24 @@
 	/* Pricing */
 	.pricing-grid {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+		grid-template-columns: repeat(4, 1fr);
 		gap: 1.25rem;
-		align-items: start;
-	}
-
-	.pricing-grid {
-		max-width: 64rem;
+		align-items: stretch;
+		max-width: 72rem;
 		margin-left: auto;
 		margin-right: auto;
+	}
+
+	@media (max-width: 1024px) {
+		.pricing-grid {
+			grid-template-columns: repeat(2, 1fr);
+		}
+	}
+
+	@media (max-width: 600px) {
+		.pricing-grid {
+			grid-template-columns: 1fr;
+		}
 	}
 
 	/* CTA */

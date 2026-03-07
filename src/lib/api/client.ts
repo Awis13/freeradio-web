@@ -4,6 +4,10 @@ function getApiBase(): string {
 	return env.PUBLIC_CP_API_URL ?? 'http://localhost:8085';
 }
 
+export function getTenantDomain(): string {
+	return env.PUBLIC_TENANT_DOMAIN ?? 'studio23.home.lan';
+}
+
 let isRefreshing = false;
 let refreshPromise: Promise<boolean> | null = null;
 

@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { authStore } from '$lib/stores/auth.svelte';
-	import { apiFetch } from '$lib/api/client';
+	import { apiFetch, getTenantDomain } from '$lib/api/client';
 	import type { Tenant } from '$lib/types';
 	import FormInput from '$lib/components/FormInput.svelte';
 	import Button from '$lib/components/Button.svelte';
@@ -20,7 +20,7 @@
 			window.location.href = res.url;
 		} catch {
 			// Fallback to direct link if SSO fails
-			window.open(`https://${tenant.subdomain}.freeradio.app`, '_blank');
+			window.open(`https://${tenant.subdomain}.${getTenantDomain()}`, '_blank');
 		}
 		ssoLoading = false;
 	}
@@ -151,7 +151,7 @@
 				placeholder="my-techno-station"
 				required
 			/>
-			<p class="subdomain-hint">{subdomain ? `${subdomain}.freeradio.app` : 'your-station.freeradio.app'}</p>
+			<p class="subdomain-hint">{subdomain ? `${subdomain}.${getTenantDomain()}` : `your-station.${getTenantDomain()}`}</p>
 
 			{#if error}
 				<p class="error">{error}</p>
