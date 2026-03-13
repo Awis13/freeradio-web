@@ -6,7 +6,7 @@
 	import Button from '$lib/components/Button.svelte';
 	import type { BillingStatus, TenantBilling } from '$lib/types';
 
-	// Данные о тарифах для карточек апгрейда
+	// Tier info for upgrade cards
 	const tierInfo: Record<string, { price: string; features: string[] }> = {
 		starter: {
 			price: '$9/mo',
@@ -56,7 +56,7 @@
 	let portalLoading = $state(false);
 	let banner = $state<{ type: 'success' | 'cancelled'; message: string } | null>(null);
 
-	// Текущий тарифный уровень (индекс для сравнения)
+	// Current tier level (index for comparison)
 	let currentTierIndex = $derived(tierOrder.indexOf(billing?.tier ?? 'free'));
 
 	onMount(() => {
@@ -65,16 +65,16 @@
 			return;
 		}
 
-		// Проверяем URL-параметры для статуса оплаты
+		// Check URL params for payment status
 		const params = new URLSearchParams(window.location.search);
 		if (params.get('success') === '1') {
 			banner = {
 				type: 'success',
 				message: 'Subscription activated! Your plan will update shortly.'
 			};
-			// Убираем параметры из URL
+			// Remove params from URL
 			window.history.replaceState({}, '', '/dashboard/billing');
-			// Подождём немного и обновим статус (Stripe webhook)
+			// Wait a bit and refresh status (Stripe webhook)
 			setTimeout(() => fetchBilling(), 2000);
 		} else if (params.get('cancelled') === '1') {
 			banner = {
@@ -91,7 +91,7 @@
 		error = null;
 		try {
 			const res = await apiFetch<BillingStatus>('/api/v1/billing/status');
-			// Берём первый тенант (основной)
+			// Take the first tenant (primary)
 			billing = res.tenants?.[0] ?? null;
 		} catch (e) {
 			error = e instanceof Error ? e.message : 'Failed to load billing info';
@@ -154,7 +154,7 @@
 <div class="page">
 	<h1 class="title">Billing</h1>
 
-	<!-- Баннер успеха/отмены -->
+	<!-- Success/cancellation banner -->
 	{#if banner}
 		<div class="banner" class:banner-success={banner.type === 'success'} class:banner-cancelled={banner.type === 'cancelled'}>
 			<span>{banner.message}</span>
@@ -179,7 +179,7 @@
 			<Button href="/dashboard/create">Create Station</Button>
 		</div>
 	{:else}
-		<!-- Текущий план -->
+		<!-- Current plan -->
 		<section class="section">
 			<h2 class="section-title">Current Plan</h2>
 			<div class="plan-card">
@@ -249,7 +249,7 @@
 			</div>
 		</section>
 
-		<!-- Выбор тарифа -->
+		<!-- Tier selection -->
 		{#if showTierSelection}
 			<section class="section">
 				<div class="tier-header">
@@ -316,7 +316,7 @@
 		margin-bottom: 2rem;
 	}
 
-	/* Баннер */
+	/* Banner */
 	.banner {
 		display: flex;
 		align-items: center;
@@ -354,7 +354,7 @@
 		opacity: 1;
 	}
 
-	/* Секции */
+	/* Sections */
 	.section {
 		margin-bottom: 2.5rem;
 	}
@@ -370,7 +370,7 @@
 		border-bottom: 1px solid var(--color-border);
 	}
 
-	/* Карточка текущего плана */
+	/* Current plan card */
 	.plan-card {
 		background: var(--color-surface);
 		border: 1px solid var(--color-border);
@@ -403,7 +403,7 @@
 		color: var(--color-text);
 	}
 
-	/* Бейджи */
+	/* Badges */
 	.badge {
 		font-family: var(--font-mono);
 		font-size: 0.6875rem;
@@ -434,7 +434,7 @@
 		color: #eab308;
 	}
 
-	/* Лимиты */
+	/* Limits */
 	.limits-grid {
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
@@ -480,7 +480,7 @@
 		flex-wrap: wrap;
 	}
 
-	/* Выбор тарифа */
+	/* Tier selection */
 	.tier-header {
 		display: flex;
 		align-items: center;

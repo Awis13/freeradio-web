@@ -22,7 +22,7 @@
 			await authStore.register(email, displayName, password, inviteCode || undefined);
 			goto('/dashboard');
 		} catch {
-			// Если ошибка связана с invite token — показываем поле
+			// If error is related to invite token — show the field
 			if (authStore.error && /invite|registration.token|token.required/i.test(authStore.error)) {
 				showInviteField = true;
 			}

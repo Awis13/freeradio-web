@@ -5,7 +5,7 @@ function getApiBase(): string {
 }
 
 export function getTenantDomain(): string {
-	return env.PUBLIC_TENANT_DOMAIN ?? 'studio23.home.lan';
+	return env.PUBLIC_TENANT_DOMAIN ?? 'localhost';
 }
 
 let isRefreshing = false;
