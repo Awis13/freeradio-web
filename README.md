@@ -7,28 +7,28 @@ Public-facing web application for the STUDIO 23 streaming platform. Listeners di
 ## Architecture
 
 ```
-┌───────────────────────────────────────────────┐
-│              SvelteKit App                     │
-│                                                │
-│  (marketing)     (auth)        (app)           │
-│  ┌──────────┐  ┌──────────┐  ┌──────────────┐ │
-│  │ Landing   │  │ Login    │  │ Explore      │ │
-│  │ Pricing   │  │ Register │  │ Station      │ │
-│  │           │  │          │  │ Dashboard    │ │
-│  │           │  │          │  │ Billing      │ │
-│  │           │  │          │  │ Profile      │ │
-│  └──────────┘  └──────────┘  └──────────────┘ │
-│                       │                        │
-│              ┌────────▼────────┐               │
-│              │   API Client    │               │
-│              │  (apiFetch)     │               │
-│              └────────┬────────┘               │
-└───────────────────────┼────────────────────────┘
-                        │ HTTP/JSON
-               ┌────────▼────────┐
-               │  Control Plane  │
-               │   (Go API)     │
-               └─────────────────┘
+┌──────────────────────────────────────────────────┐
+│                 SvelteKit App                     │
+│                                                   │
+│  (marketing)       (auth)          (app)          │
+│  ┌────────────┐  ┌────────────┐  ┌────────────┐  │
+│  │ Landing    │  │ Login      │  │ Explore    │  │
+│  │ Pricing    │  │ Register   │  │ Station    │  │
+│  │            │  │            │  │ Dashboard  │  │
+│  │            │  │            │  │ Billing    │  │
+│  │            │  │            │  │ Profile    │  │
+│  └────────────┘  └────────────┘  └────────────┘  │
+│                        │                          │
+│               ┌────────▼─────────┐                │
+│               │   API Client     │                │
+│               │   (apiFetch)     │                │
+│               └────────┬─────────┘                │
+└────────────────────────┼──────────────────────────┘
+                         │ HTTP/JSON
+                ┌────────▼─────────┐
+                │  Control Plane   │
+                │    (Go API)      │
+                └──────────────────┘
 ```
 
 ## Tech Stack
