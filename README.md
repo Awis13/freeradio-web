@@ -2,6 +2,8 @@
 
 Public-facing web application for the STUDIO 23 streaming platform. Listeners discover stations, browse content, manage subscriptions, and listen to live streams — all from the browser.
 
+![STUDIO 23 Web](docs/studio23-web.png)
+
 ## Architecture
 
 ```
