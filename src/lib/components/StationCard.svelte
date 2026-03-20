@@ -26,9 +26,13 @@
 
 <a href="/stations/{station.slug}" class="card">
 	<div class="artwork">
-		<div class="artwork-inner">
-			{displayName.charAt(0)}
-		</div>
+		{#if station.artwork_url}
+			<img class="artwork-img" src={station.artwork_url} alt={station.name} />
+		{:else}
+			<div class="artwork-inner">
+				{displayName.charAt(0)}
+			</div>
+		{/if}
 		{#if station.is_online}
 			<span class="live-badge">LIVE</span>
 		{/if}
@@ -99,6 +103,12 @@
 		aspect-ratio: 16 / 9;
 		background: var(--color-bg);
 		overflow: hidden;
+	}
+
+	.artwork-img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
 	}
 
 	.artwork-inner {

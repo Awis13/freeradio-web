@@ -4,6 +4,8 @@ class PlayerState {
 	isPlaying = $state(false);
 	station = $state<Station | null>(null);
 	volume = $state(0.8);
+	error = $state<string | null>(null);
+	buffering = $state(false);
 	audio: HTMLAudioElement | null = null;
 
 	bindAudio(el: HTMLAudioElement) {
@@ -14,6 +16,8 @@ class PlayerState {
 	play(station: Station) {
 		this.station = station;
 		this.isPlaying = true;
+		this.error = null;
+		this.buffering = true;
 	}
 
 	toggle() {
@@ -21,9 +25,16 @@ class PlayerState {
 		this.isPlaying = !this.isPlaying;
 		if (this.audio) {
 			if (this.isPlaying) {
-				this.audio.play().catch(() => {});
+				this.error = null;
+				this.buffering = true;
+				this.audio.play().catch((e) => {
+					this.error = e instanceof Error ? e.message : 'Playback failed';
+					this.isPlaying = false;
+					this.buffering = false;
+				});
 			} else {
 				this.audio.pause();
+				this.buffering = false;
 			}
 		}
 	}
@@ -31,6 +42,8 @@ class PlayerState {
 	stop() {
 		this.isPlaying = false;
 		this.station = null;
+		this.error = null;
+		this.buffering = false;
 		if (this.audio) {
 			this.audio.pause();
 			this.audio.src = '';

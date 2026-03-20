@@ -1,49 +1,111 @@
-import type { Station } from '$lib/types';
 import { apiFetch } from '$lib/api/client';
+import type { Station, StationListResponse, StationSort } from '$lib/types';
 
 class StationsState {
-	all = $state<Station[]>([]);
-	selectedGenre = $state<string | null>(null);
+	items = $state<Station[]>([]);
 	loading = $state(false);
 	error = $state<string | null>(null);
 
-	get filtered(): Station[] {
-		if (!this.selectedGenre) return this.all;
-		return this.all.filter((s) => s.genre === this.selectedGenre);
-	}
+	// Query state
+	query = $state('');
+	selectedGenre = $state('');
+	sort = $state<StationSort>('name');
+	page = $state(0);
+	limit = $state(20);
+	total = $state(0);
+	hasMore = $state(false);
 
-	get genres(): string[] {
-		return [...new Set(this.all.map((s) => s.genre).filter(Boolean))].sort();
-	}
+	// Genres
+	genres = $state<string[]>([]);
 
-	get onlineCount(): number {
-		return this.all.filter((s) => s.is_online).length;
-	}
+	// Polling
+	private pollTimer: ReturnType<typeof setInterval> | null = null;
+	private searchTimer: ReturnType<typeof setTimeout> | null = null;
 
-	get totalListeners(): number {
-		return this.all.reduce((sum, s) => sum + (s.listeners_count ?? 0), 0);
-	}
-
-	setGenre(genre: string | null) {
-		this.selectedGenre = genre;
-	}
+	// Derived
+	onlineCount = $derived(this.items.filter((s) => s.is_online).length);
+	totalListeners = $derived(this.items.reduce((sum, s) => sum + (s.listeners_count || 0), 0));
 
 	async fetch() {
 		this.loading = true;
 		this.error = null;
 		try {
-			const data = await apiFetch<Station[]>('/api/v1/stations');
-			this.all = data;
+			const params = new URLSearchParams();
+			if (this.query) params.set('q', this.query);
+			if (this.selectedGenre) params.set('genre', this.selectedGenre);
+			if (this.sort !== 'name') params.set('sort', this.sort);
+			params.set('limit', String(this.limit));
+			params.set('offset', String(this.page * this.limit));
+
+			const qs = params.toString();
+			const data = await apiFetch<StationListResponse>(`/api/v1/stations${qs ? '?' + qs : ''}`);
+			this.items = data.items || [];
+			this.total = data.total;
+			this.hasMore = data.has_more;
 		} catch (e) {
 			this.error = e instanceof Error ? e.message : 'Failed to load stations';
-			this.all = [];
+			this.items = [];
+		} finally {
+			this.loading = false;
 		}
-		this.loading = false;
+	}
+
+	async fetchGenres() {
+		try {
+			this.genres = await apiFetch<string[]>('/api/v1/stations/genres');
+		} catch {
+			// Non-critical, genre buttons just won't show
+		}
+	}
+
+	search(q: string) {
+		this.query = q;
+		this.page = 0;
+		if (this.searchTimer) clearTimeout(this.searchTimer);
+		this.searchTimer = setTimeout(() => this.fetch(), 300);
+	}
+
+	setGenre(genre: string) {
+		this.selectedGenre = this.selectedGenre === genre ? '' : genre;
+		this.page = 0;
+		this.fetch();
+	}
+
+	setSort(sort: StationSort) {
+		this.sort = sort;
+		this.page = 0;
+		this.fetch();
+	}
+
+	nextPage() {
+		if (this.hasMore) {
+			this.page++;
+			this.fetch();
+		}
+	}
+
+	prevPage() {
+		if (this.page > 0) {
+			this.page--;
+			this.fetch();
+		}
+	}
+
+	startPolling() {
+		this.stopPolling();
+		this.pollTimer = setInterval(() => this.fetch(), 30000);
+	}
+
+	stopPolling() {
+		if (this.pollTimer) {
+			clearInterval(this.pollTimer);
+			this.pollTimer = null;
+		}
 	}
 
 	async fetchOne(slug: string): Promise<Station | null> {
 		try {
-			return await apiFetch<Station>(`/api/v1/stations/${encodeURIComponent(slug)}`);
+			return await apiFetch<Station>(`/api/v1/stations/${slug}`);
 		} catch {
 			return null;
 		}

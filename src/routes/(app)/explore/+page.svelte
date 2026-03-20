@@ -1,11 +1,38 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
 	import { stationsStore } from '$lib/stores/stations.svelte';
+	import type { StationSort } from '$lib/types';
 	import StationCard from '$lib/components/StationCard.svelte';
 	import GenreTag from '$lib/components/GenreTag.svelte';
 
+	const sortOptions: { value: StationSort; label: string }[] = [
+		{ value: 'name', label: 'Name' },
+		{ value: 'listeners', label: 'Listeners' },
+		{ value: 'online_first', label: 'Online First' },
+		{ value: 'newest', label: 'Newest' }
+	];
+
+	function handleSearch(e: Event) {
+		const target = e.target as HTMLInputElement;
+		stationsStore.search(target.value);
+	}
+
+	function handleSortChange(e: Event) {
+		const target = e.target as HTMLSelectElement;
+		stationsStore.setSort(target.value as StationSort);
+	}
+
+	const rangeStart = $derived(stationsStore.total === 0 ? 0 : stationsStore.page * stationsStore.limit + 1);
+	const rangeEnd = $derived(Math.min((stationsStore.page + 1) * stationsStore.limit, stationsStore.total));
+
 	onMount(() => {
 		stationsStore.fetch();
+		stationsStore.fetchGenres();
+		stationsStore.startPolling();
+	});
+
+	onDestroy(() => {
+		stationsStore.stopPolling();
 	});
 </script>
 
@@ -22,19 +49,35 @@
 	</div>
 </div>
 
+<!-- Search & Sort -->
+<div class="toolbar">
+	<input
+		type="text"
+		class="search-input"
+		placeholder="Search stations..."
+		value={stationsStore.query}
+		oninput={handleSearch}
+	/>
+	<select class="sort-select" value={stationsStore.sort} onchange={handleSortChange}>
+		{#each sortOptions as opt}
+			<option value={opt.value}>{opt.label}</option>
+		{/each}
+	</select>
+</div>
+
 <!-- Genre filters -->
 {#if stationsStore.genres.length > 0}
 	<div class="filters">
 		<GenreTag
 			genre="All"
 			active={!stationsStore.selectedGenre}
-			onclick={() => stationsStore.setGenre(null)}
+			onclick={() => stationsStore.setGenre(stationsStore.selectedGenre)}
 		/>
 		{#each stationsStore.genres as genre}
 			<GenreTag
 				{genre}
 				active={stationsStore.selectedGenre === genre}
-				onclick={() => stationsStore.setGenre(stationsStore.selectedGenre === genre ? null : genre)}
+				onclick={() => stationsStore.setGenre(genre)}
 			/>
 		{/each}
 	</div>
@@ -51,18 +94,35 @@
 		<p>{stationsStore.error}</p>
 		<button class="reset" onclick={() => stationsStore.fetch()}>Retry</button>
 	</div>
-{:else if stationsStore.filtered.length === 0}
+{:else if stationsStore.items.length === 0}
 	<div class="empty">
 		<p>No stations found</p>
-		{#if stationsStore.selectedGenre}
-			<button class="reset" onclick={() => stationsStore.setGenre(null)}>Show all stations</button>
+		{#if stationsStore.selectedGenre || stationsStore.query}
+			<button class="reset" onclick={() => { stationsStore.search(''); stationsStore.setGenre(stationsStore.selectedGenre); }}>Clear filters</button>
 		{/if}
 	</div>
 {:else}
 	<div class="grid">
-		{#each stationsStore.filtered as station (station.id)}
+		{#each stationsStore.items as station (station.id)}
 			<StationCard {station} />
 		{/each}
+	</div>
+
+	<!-- Pagination -->
+	<div class="pagination">
+		<span class="pagination-info">Showing {rangeStart}–{rangeEnd} of {stationsStore.total} stations</span>
+		<div class="pagination-buttons">
+			<button
+				class="reset"
+				disabled={stationsStore.page === 0}
+				onclick={() => stationsStore.prevPage()}
+			>Previous</button>
+			<button
+				class="reset"
+				disabled={!stationsStore.hasMore}
+				onclick={() => stationsStore.nextPage()}
+			>Next</button>
+		</div>
 	</div>
 {/if}
 
@@ -81,6 +141,49 @@
 	.subtitle {
 		font-size: 0.8125rem;
 		color: var(--color-text-dim);
+	}
+
+	.toolbar {
+		display: flex;
+		gap: 0.75rem;
+		margin-bottom: 1.25rem;
+	}
+
+	.search-input {
+		flex: 1;
+		padding: 0.5rem 0.75rem;
+		font-family: var(--font-mono);
+		font-size: 0.8125rem;
+		color: var(--color-text);
+		background: var(--color-surface);
+		border: 1px solid var(--color-border);
+		border-radius: 2px;
+		outline: none;
+		transition: border-color 150ms ease;
+	}
+
+	.search-input::placeholder {
+		color: var(--color-text-dim);
+	}
+
+	.search-input:focus {
+		border-color: var(--accent-color);
+	}
+
+	.sort-select {
+		padding: 0.5rem 0.75rem;
+		font-family: var(--font-mono);
+		font-size: 0.8125rem;
+		color: var(--color-text);
+		background: var(--color-surface);
+		border: 1px solid var(--color-border);
+		border-radius: 2px;
+		outline: none;
+		cursor: pointer;
+	}
+
+	.sort-select:focus {
+		border-color: var(--accent-color);
 	}
 
 	.filters {
@@ -133,8 +236,32 @@
 		cursor: pointer;
 	}
 
-	.reset:hover {
+	.reset:hover:not(:disabled) {
 		background: rgba(var(--accent-rgb), 0.1);
+	}
+
+	.reset:disabled {
+		opacity: 0.4;
+		cursor: not-allowed;
+	}
+
+	.pagination {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-top: 2rem;
+		padding-top: 1rem;
+		border-top: 1px solid var(--color-border);
+	}
+
+	.pagination-info {
+		font-size: 0.8125rem;
+		color: var(--color-text-dim);
+	}
+
+	.pagination-buttons {
+		display: flex;
+		gap: 0.5rem;
 	}
 
 	@keyframes spin {

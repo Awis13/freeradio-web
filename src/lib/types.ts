@@ -72,6 +72,16 @@ export interface TierLimits {
 	storage: string;
 }
 
+export interface StationListResponse {
+	items: Station[];
+	total: number;
+	limit: number;
+	offset: number;
+	has_more: boolean;
+}
+
+export type StationSort = 'name' | 'listeners' | 'online_first' | 'newest';
+
 export type ThemeId = 'phosphor' | 'amber' | 'neon' | 'vapor' | 'ice' | 'fire';
 
 export interface ThemeConfig {
