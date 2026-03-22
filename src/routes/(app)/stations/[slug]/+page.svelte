@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
 	import type { Station } from '$lib/types';
 	import { stationsStore } from '$lib/stores/stations.svelte';
 	import { playerStore } from '$lib/stores/player.svelte';
@@ -10,14 +10,36 @@
 
 	let station = $state<Station | null>(null);
 	let loading = $state(true);
+	let pollTimer: ReturnType<typeof setInterval> | null = null;
 
 	const isCurrentlyPlaying = $derived(
 		station && playerStore.station?.id === station.id && playerStore.isPlaying
 	);
 
+	const displayName = $derived(
+		station ? (/^\d+$/.test(station.name) ? `Station #${station.name}` : station.name) : ''
+	);
+
+	async function fetchStation() {
+		const result = await stationsStore.fetchOne(data.slug);
+		if (result) station = result;
+		return result;
+	}
+
 	onMount(async () => {
-		station = await stationsStore.fetchOne(data.slug);
+		const result = await fetchStation();
 		loading = false;
+		if (result) {
+			// Поллинг каждые 30 секунд для обновления now_playing и listeners
+			pollTimer = setInterval(() => fetchStation(), 30000);
+		}
+	});
+
+	onDestroy(() => {
+		if (pollTimer) {
+			clearInterval(pollTimer);
+			pollTimer = null;
+		}
 	});
 
 	function handlePlay() {
@@ -28,10 +50,20 @@
 			playerStore.play(station);
 		}
 	}
+
+	function formatUptime(dateStr: string): string {
+		const diff = Date.now() - new Date(dateStr).getTime();
+		const hours = Math.floor(diff / (1000 * 60 * 60));
+		const days = Math.floor(hours / 24);
+		if (days > 0) return `${days}d ${hours % 24}h`;
+		if (hours > 0) return `${hours}h`;
+		const mins = Math.floor(diff / (1000 * 60));
+		return `${mins}m`;
+	}
 </script>
 
 <svelte:head>
-	<title>{station ? `${station.name} — STUDIO 23` : 'Station — STUDIO 23'}</title>
+	<title>{station ? `${displayName} — STUDIO 23` : 'Station — STUDIO 23'}</title>
 </svelte:head>
 
 {#if loading}
@@ -45,12 +77,23 @@
 		<Button href="/explore" variant="secondary">Back to Explore</Button>
 	</div>
 {:else}
+	<a href="/explore" class="back-link">
+		<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+			<polyline points="15 18 9 12 15 6" />
+		</svg>
+		Back to Explore
+	</a>
+
 	<div class="station">
 		<!-- Artwork -->
 		<div class="artwork">
-			<div class="artwork-inner">
-				{station.name.charAt(0)}
-			</div>
+			{#if station.artwork_url}
+				<img class="artwork-img" src={station.artwork_url} alt={displayName} />
+			{:else}
+				<div class="artwork-inner">
+					{displayName.charAt(0)}
+				</div>
+			{/if}
 		</div>
 
 		<!-- Info -->
@@ -64,24 +107,33 @@
 				{/if}
 			</div>
 
-			<h1 class="name">{station.name}</h1>
+			<h1 class="name">{displayName}</h1>
 			<p class="desc">{station.description}</p>
 
 			{#if station.now_playing}
-				<p class="now-playing">Now playing: {station.now_playing}</p>
+				<div class="now-playing-section">
+					<span class="now-playing-label">Now Playing</span>
+					<p class="now-playing">{station.now_playing}</p>
+				</div>
 			{/if}
 
 			<div class="stats">
+				{#if station.listeners_count != null}
+					<div class="stat">
+						<span class="stat-val">{station.listeners_count}</span>
+						<span class="stat-label">Listeners</span>
+					</div>
+				{/if}
 				{#if station.bpm}
 					<div class="stat">
 						<span class="stat-val">{Math.round(station.bpm)}</span>
 						<span class="stat-label">BPM</span>
 					</div>
 				{/if}
-				{#if station.listeners_count != null}
+				{#if station.is_online && station.updated_at}
 					<div class="stat">
-						<span class="stat-val">{station.listeners_count}</span>
-						<span class="stat-label">Listeners</span>
+						<span class="stat-val">{formatUptime(station.updated_at)}</span>
+						<span class="stat-label">Online</span>
 					</div>
 				{/if}
 			</div>
@@ -106,6 +158,21 @@
 {/if}
 
 <style>
+	.back-link {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.375rem;
+		font-size: 0.8125rem;
+		color: var(--color-text-dim);
+		text-decoration: none;
+		margin-bottom: 2rem;
+		transition: color 150ms ease;
+	}
+
+	.back-link:hover {
+		color: var(--accent-color);
+	}
+
 	.station {
 		display: grid;
 		grid-template-columns: 1fr 1fr;
@@ -119,6 +186,12 @@
 		border-radius: 0.25rem;
 		overflow: hidden;
 		border: 1px solid var(--color-border);
+	}
+
+	.artwork-img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
 	}
 
 	.artwork-inner {
@@ -176,20 +249,36 @@
 		line-height: 1.1;
 	}
 
-	.now-playing {
-		font-size: 0.8125rem;
-		color: var(--accent-color);
-		margin-bottom: 1rem;
-		white-space: nowrap;
-		overflow: hidden;
-		text-overflow: ellipsis;
-	}
-
 	.desc {
 		font-size: 0.9375rem;
 		line-height: 1.6;
 		color: var(--color-text-muted);
 		margin-bottom: 1.5rem;
+	}
+
+	.now-playing-section {
+		margin-bottom: 1.5rem;
+		padding: 0.75rem 1rem;
+		background: rgba(var(--accent-rgb), 0.05);
+		border: 1px solid rgba(var(--accent-rgb), 0.1);
+		border-radius: 0.25rem;
+	}
+
+	.now-playing-label {
+		font-size: 0.625rem;
+		font-weight: 700;
+		letter-spacing: 0.1em;
+		text-transform: uppercase;
+		color: var(--color-text-dim);
+	}
+
+	.now-playing {
+		font-size: 0.875rem;
+		color: var(--accent-color);
+		margin-top: 0.25rem;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 
 	.stats {
@@ -286,6 +375,18 @@
 		.artwork {
 			max-width: 100%;
 			aspect-ratio: 16 / 9;
+		}
+
+		.name {
+			font-size: 1.5rem;
+		}
+
+		.stats {
+			gap: 1.25rem;
+		}
+
+		.stat-val {
+			font-size: 1.25rem;
 		}
 	}
 </style>
