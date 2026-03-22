@@ -16,21 +16,17 @@ async function tryRefresh(): Promise<boolean> {
 
 	isRefreshing = true;
 	refreshPromise = (async () => {
-		const refreshToken = localStorage.getItem('freeradio-refresh-token');
-		if (!refreshToken) return false;
-
 		try {
 			const res = await fetch(`${getApiBase()}/api/v1/auth/refresh`, {
 				method: 'POST',
+				credentials: 'include',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ refresh_token: refreshToken })
+				body: JSON.stringify({})
 			});
 
 			if (!res.ok) return false;
 
 			const data = await res.json();
-			localStorage.setItem('freeradio-token', data.token);
-			localStorage.setItem('freeradio-refresh-token', data.refresh_token);
 			if (data.user) {
 				localStorage.setItem('freeradio-user', JSON.stringify(data.user));
 			}
@@ -47,49 +43,38 @@ async function tryRefresh(): Promise<boolean> {
 }
 
 function clearAuth() {
-	localStorage.removeItem('freeradio-token');
-	localStorage.removeItem('freeradio-refresh-token');
 	localStorage.removeItem('freeradio-user');
 }
 
 export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
-	const headers: Record<string, string> = {
-		'Content-Type': 'application/json'
-	};
-
-	if (typeof window !== 'undefined') {
-		const token = localStorage.getItem('freeradio-token');
-		if (token) {
-			headers['Authorization'] = `Bearer ${token}`;
-		}
-	}
-
 	const res = await fetch(`${getApiBase()}${path}`, {
 		...init,
-		headers: { ...headers, ...(init?.headers as Record<string, string>) }
+		credentials: 'include',
+		headers: {
+			'Content-Type': 'application/json',
+			...(init?.headers as Record<string, string>)
+		}
 	});
 
-	// On 401, try refreshing the token once (skip for auth endpoints — they return 401 for bad credentials)
+	// On 401, try refreshing the token once (skip for auth endpoints)
 	const isAuthEndpoint = path.startsWith('/api/v1/auth/');
 	if (res.status === 401 && typeof window !== 'undefined' && !isAuthEndpoint) {
 		const refreshed = await tryRefresh();
 		if (refreshed) {
-			const newToken = localStorage.getItem('freeradio-token');
-			const retryHeaders = {
-				...headers,
-				...(init?.headers as Record<string, string>),
-				Authorization: `Bearer ${newToken}`
-			};
+			// Retry — server set new access_token cookie
 			const retry = await fetch(`${getApiBase()}${path}`, {
 				...init,
-				headers: retryHeaders
+				credentials: 'include',
+				headers: {
+					'Content-Type': 'application/json',
+					...(init?.headers as Record<string, string>)
+				}
 			});
 
 			if (retry.ok) {
 				return retry.json() as Promise<T>;
 			}
 
-			// Retry also failed — clear auth and redirect
 			if (retry.status === 401) {
 				clearAuth();
 				window.location.href = '/login?expired=1';
@@ -99,7 +84,6 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
 			return handleError(retry);
 		}
 
-		// Refresh failed — clear auth and redirect
 		clearAuth();
 		window.location.href = '/login?expired=1';
 		throw new Error('Session expired');
