@@ -18,7 +18,7 @@ This repository is the **public web frontend** of STUDIO 23 — a multi-tenant s
 
 - **freeradio-web** (this repo) — SvelteKit frontend that listeners and station owners use in the browser.
 - **[controlplane](https://github.com/Awis13/controlplane)** — Go API handling auth, tenants, billing, and LXC provisioning.
-- **[freeradio](https://github.com/Awis13/freeradio)** — the per-tenant streaming engine (AutoDJ, video compositing, HLS/RTMP). _Note: this repo may be private for a few more hours — it is being published in the same sweep._
+- **[freeradio](https://github.com/Awis13/freeradio)** — the per-tenant streaming stack (AutoDJ, video compositing, HLS/RTMP).
 
 ```mermaid
 flowchart TD
