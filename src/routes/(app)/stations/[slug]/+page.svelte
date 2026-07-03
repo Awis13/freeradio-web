@@ -30,7 +30,7 @@
 		const result = await fetchStation();
 		loading = false;
 		if (result) {
-			// Поллинг каждые 30 секунд для обновления now_playing и listeners
+			// Poll every 30 seconds to refresh now_playing and listeners
 			pollTimer = setInterval(() => fetchStation(), 30000);
 		}
 	});

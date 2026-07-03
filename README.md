@@ -1,8 +1,66 @@
 # STUDIO 23 — Web Frontend
 
+[![CI](https://github.com/Awis13/freeradio-web/actions/workflows/ci.yml/badge.svg)](https://github.com/Awis13/freeradio-web/actions/workflows/ci.yml)
+![SvelteKit](https://img.shields.io/badge/SvelteKit-2-FF3E00?logo=svelte&logoColor=white)
+![Svelte](https://img.shields.io/badge/Svelte-5-FF3E00?logo=svelte&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
+![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-v4-06B6D4?logo=tailwindcss&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-7-646CFF?logo=vite&logoColor=white)
+![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
+
 Public-facing web application for the STUDIO 23 streaming platform. Listeners discover stations, browse content, manage subscriptions, and listen to live streams — all from the browser.
 
 ![STUDIO 23 Web](docs/studio23-web.png)
+
+## STUDIO 23 Platform
+
+This repository is the **public web frontend** of STUDIO 23 — a multi-tenant streaming SaaS. It is one of three repositories that make up the platform:
+
+- **freeradio-web** (this repo) — SvelteKit frontend that listeners and station owners use in the browser.
+- **[controlplane](https://github.com/Awis13/controlplane)** — Go API handling auth, tenants, billing, and LXC provisioning.
+- **[freeradio](https://github.com/Awis13/freeradio)** — the per-tenant streaming stack (AutoDJ, video compositing, HLS/RTMP).
+
+```mermaid
+flowchart TD
+    U[User browser] --> W[freeradio-web · SvelteKit :5173/:3000]
+    W -->|/api/v1/* cookie+JWT| CP[controlplane · Go API :8085]
+    CP --> PG[(Postgres 17)]
+    CP -->|provision LXC| PX[Proxmox VE]
+    PX -->|deploy stack| FR[freeradio tenant]
+    CP -->|WireGuard mesh 10.10.0.0/24| FR
+    CP -->|poll :80/api/status| FR
+    CP -. dynamic routing .-> CADDY[Caddy]
+    CP -. tier billing .-> STRIPE[Stripe]
+    subgraph TENANT[freeradio tenant stack]
+      DASH[dashboard :9090 Node+WS+HLS]
+      ICE[Icecast :8000]
+      LIQ[Liquidsoap :7000 BPM AutoDJ]
+      FF[FFmpeg streamer]
+      RTMP[nginx-rtmp :1935 OBS]
+      LIQ --> ICE --> FF
+      RTMP --> FF
+    end
+    FR --- TENANT
+    FF -->|HLS| W
+    FF -->|RTMP| EXT[YouTube / Twitch / Kick]
+```
+
+## What This Demonstrates
+
+| Skill | How it shows up here |
+|-------|----------------------|
+| SvelteKit 2 / Svelte 5 | Full-stack frontend built on runes, route groups, and the Node adapter |
+| Authentication | httpOnly-cookie JWT auth with silent token refresh on 401 |
+| Payments | Stripe Checkout + Customer Portal integration for tier upgrades |
+| Live media | HLS.js playback with a persistent player bar |
+| Styling | Tailwind CSS v4 (CSS-first config, no `tailwind.config.js`) |
+| UI polish | Multi-theme system with smooth transitions across six themes |
+
+## Screenshots
+
+| Landing | Explore | Login |
+|---------|---------|-------|
+| ![Landing](screenshots/neon-landing.png) | ![Explore](screenshots/neon-explore.png) | ![Login](screenshots/neon-login.png) |
 
 ## Architecture
 
