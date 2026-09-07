@@ -2,48 +2,131 @@
 	import { playerStore } from '$lib/stores/player.svelte';
 	import PlayingIndicator from './PlayingIndicator.svelte';
 	import VolumeSlider from './VolumeSlider.svelte';
-	import Hls from 'hls.js';
 
 	let audioEl: HTMLAudioElement | undefined = $state();
-	let hls: Hls | null = null;
 
+	// Bind the audio element to the store. Clears the reference on unmount so the
+	// store never holds a stale element.
 	$effect(() => {
-		if (audioEl) {
-			playerStore.bindAudio(audioEl);
+		const el = audioEl;
+		if (el) {
+			playerStore.bindAudio(el);
+			return () => {
+				if (playerStore.audio === el) {
+					playerStore.audio = null;
+				}
+			};
 		}
 	});
 
+	// Station-scoped controller — the single source of truth for playback.
+	// Owns source attach, HLS lifecycle, media events, buffering and teardown.
+	// Re-runs only when the station or the audio element changes, so toggling
+	// play/pause never tears down the source. `isPlaying` is confirmed only by a
+	// real `playing` media event; a rejected play() never leaves the UI "Playing".
 	$effect(() => {
 		const station = playerStore.station;
-		if (!station || !audioEl) return;
+		const audio = playerStore.audio;
+		if (!station || !audio) return;
 
-		if (hls) {
-			hls.destroy();
-			hls = null;
-		}
+		let disposed = false;
+		let hls: import('hls.js').default | null = null;
 
 		const url = station.stream_url;
-		if (url.endsWith('.m3u8') && Hls.isSupported()) {
-			hls = new Hls();
-			hls.loadSource(url);
-			hls.attachMedia(audioEl);
+		const isHls = url.endsWith('.m3u8');
+
+		const onPlaying = () => {
+			if (disposed) return;
+			playerStore.isPlaying = true;
+			playerStore.buffering = false;
+			playerStore.error = null;
+		};
+		const onWaiting = () => {
+			if (disposed) return;
+			playerStore.buffering = true;
+		};
+		const onError = () => {
+			if (disposed) return;
+			playerStore.error = 'Playback error';
+			playerStore.isPlaying = false;
+			playerStore.buffering = false;
+		};
+		const onPause = () => {
+			if (disposed) return;
+			playerStore.isPlaying = false;
+			playerStore.buffering = false;
+		};
+
+		audio.addEventListener('playing', onPlaying);
+		audio.addEventListener('waiting', onWaiting);
+		audio.addEventListener('error', onError);
+		audio.addEventListener('pause', onPause);
+
+		if (isHls) {
+			// Client-only dynamic import: hls.js is never bundled or executed on the
+			// server. Late callbacks from a previous station are ignored via `disposed`.
+			import('hls.js').then(({ default: HlsCtor }) => {
+				if (disposed) return;
+				if (!HlsCtor.isSupported()) {
+					playerStore.error = 'HLS is not supported in this browser';
+					return;
+				}
+				hls = new HlsCtor();
+				hls.on(HlsCtor.Events.MANIFEST_PARSED, () => {
+					if (disposed) return;
+					if (playerStore.playRequested) {
+						audio.play().catch(() => {
+							playerStore.isPlaying = false;
+							playerStore.buffering = false;
+						});
+					}
+				});
+				hls.on(HlsCtor.Events.ERROR, (_evt, data) => {
+					if (disposed) return;
+					if (data.fatal) {
+						playerStore.error = 'Stream error';
+						playerStore.isPlaying = false;
+						playerStore.buffering = false;
+					}
+				});
+				hls.loadSource(url);
+				hls.attachMedia(audio);
+			});
 		} else {
-			audioEl.src = url;
+			audio.src = url;
 		}
+
+		return () => {
+			disposed = true;
+			audio.removeEventListener('playing', onPlaying);
+			audio.removeEventListener('waiting', onWaiting);
+			audio.removeEventListener('error', onError);
+			audio.removeEventListener('pause', onPause);
+			if (hls) {
+				hls.destroy();
+				hls = null;
+			}
+			audio.pause();
+			audio.removeAttribute('src');
+			audio.load();
+		};
 	});
 
+	// Play/pause intent bridge. Reacts to toggle() and to station switches (so a
+	// freshly attached source is played) without owning the HLS lifecycle. A
+	// rejected play() never leaves the UI in the "Playing" state.
 	$effect(() => {
-		if (!audioEl) return;
-		if (playerStore.isPlaying) {
-			audioEl.play().catch(() => {});
+		const audio = playerStore.audio;
+		// Re-run when the station changes so a newly attached source is played.
+		void playerStore.station;
+		if (!audio) return;
+		if (playerStore.playRequested) {
+			audio.play().catch(() => {
+				playerStore.isPlaying = false;
+				playerStore.buffering = false;
+			});
 		} else {
-			audioEl.pause();
-		}
-	});
-
-	$effect(() => {
-		if (audioEl) {
-			audioEl.volume = playerStore.volume;
+			audio.pause();
 		}
 	});
 </script>

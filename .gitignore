@@ -25,3 +25,7 @@ vite.config.ts.timestamp-*
 # Internal docs
 CLAUDE.md
 TODO.md
+
+# Playwright
+/test-results
+/playwright-report
