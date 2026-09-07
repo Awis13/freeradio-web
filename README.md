@@ -114,6 +114,8 @@ flowchart TD
 
 ## Quick Start
 
+> **Requirements:** Node.js 24+ (enforced via `engines` in `package.json`).
+
 ```bash
 # Install dependencies
 npm install
